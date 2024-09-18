@@ -16,13 +16,13 @@ https://f-droid.org/ko/packages/com.termux/
 
 이제 termux로 들어가서 아래 package를 인스톨한다.
 ```
-pkg install proot proot-distro pulseaudio
+pkg install proot proot-distro pulseaudio vim
 ```
 
 그리고 아래처럼 두개의 파일을 만든다. vi나 nano를 이용하여 편집한다.  
 **.profile**
 ```
-LD_PRELOAD=/system/lib64/libskcodec.so
+[ -f /system/lib64/libskcodec.so ] && LD_PRELOAD=/system/lib64/libskcodec.so
 killall pulseaudio 2> /dev/null
 pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
 pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 
@@ -39,7 +39,7 @@ chmod a+x .profile start-arch.sh
 
 **에디터쓰기 싫으면**, 아래처럼 echo 를 이용해서 파일을 만들어도 되겠다. 바로 copy해서 termux 에서 실행(~$ 위치에서)하면 파일이 만들어진다.
 ```
-echo 'LD_PRELOAD=/system/lib64/libskcodec.so' > .profile
+echo '[ -f /system/lib64/libskcodec.so ] && LD_PRELOAD=/system/lib64/libskcodec.so' > .profile
 echo 'killall pulseaudio 2> /dev/null' >> .profile
 echo 'pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1' >> .profile
 echo 'pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1' >> .profile
@@ -70,11 +70,14 @@ mkdir -p proot-distro/installed-rootfs
 이제 widevine패치가 들어간 archlinux proot 이미지를 Download에서 옮기고 압축해제. 
 ```
 cd /data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs
-mv ~/storage/downloads/proot-widevine-patched-archlinux.tar.gz .
+mv /storage/emulated/0/Download/proot-widevine-patched-archlinux.tar.gz .
 tar -xvzf proot-widevine-patched-archlinux.tar.gz
 ```
-에러없이 압축이 다 풀렸다면 거의 끝났음.
+여기서 주의할 점은 termux에 안드로이드 파일시스템에 접근할 권한이 있어야 한다는 것이다. 아래처럼 모든 권한이 다 들어가 있는지 확인한다.  
+<img src="./photo_permission.jpg" width=300>
 
+`/storage/emulated/0/`아래가 핸드폰의 internal storage이다.
+에러없이 압축이 다 풀렸다면 거의 끝났음.
 exit치고 termux에서 나갔다가 다시 들어온다.
 
 
