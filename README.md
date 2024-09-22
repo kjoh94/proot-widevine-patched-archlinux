@@ -19,7 +19,18 @@ https://f-droid.org/ko/packages/com.termux/
 pkg install proot proot-distro pulseaudio vim
 ```
 
-그리고 아래처럼 두개의 파일을 만든다. vi나 nano를 이용하여 편집한다.  
+그리고 아래처럼 두개의 파일 **.profile**, **start-arch.sh** 을 만든다.  
+아래처럼 echo 를 이용해서 파일을 만들어도 되겠다. 바로 copy해서 termux 에서 실행(~$ 위치에서)하면 파일이 만들어진다.
+```
+echo '[ -f /system/lib64/libskcodec.so ] && LD_PRELOAD=/system/lib64/libskcodec.so' > .profile
+echo 'killall pulseaudio 2> /dev/null' >> .profile
+echo 'pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1' >> .profile
+echo 'pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1' >> .profile
+echo 'PROOT_ASSUME_NEW_SECCOMP=1 proot-distro login --user anon01 archlinux' > start-arch.sh
+chmod a+x .profile start-arch.sh
+```
+
+vi나 nano를 이용하여 편집해도 되겠다. 편한 방식으로 하심 될듯.  
 **.profile**
 ```
 [ -f /system/lib64/libskcodec.so ] && LD_PRELOAD=/system/lib64/libskcodec.so
@@ -31,28 +42,17 @@ pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymou
 ```
 PROOT_ASSUME_NEW_SECCOMP=1 proot-distro login --user anon01 archlinux
 ```
-둘다 실행권한이 있어야 하기에 아래 명령어를 실행
+둘다 실행권한이 있어야 하기에 아래 명령어도 꼭 실행해준다.
 ```
-chmod a+x .profile start-arch.sh
-```
-
-
-**에디터쓰기 싫으면**, 아래처럼 echo 를 이용해서 파일을 만들어도 되겠다. 바로 copy해서 termux 에서 실행(~$ 위치에서)하면 파일이 만들어진다.
-```
-echo '[ -f /system/lib64/libskcodec.so ] && LD_PRELOAD=/system/lib64/libskcodec.so' > .profile
-echo 'killall pulseaudio 2> /dev/null' >> .profile
-echo 'pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1' >> .profile
-echo 'pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1' >> .profile
-echo 'PROOT_ASSUME_NEW_SECCOMP=1 proot-distro login --user anon01 archlinux' > start-arch.sh
 chmod a+x .profile start-arch.sh
 ```
 
 잘 되었는지 확인해보자.  
 termux에서 exit로 logout 한후 다시 termux를 클릭하여 들어온다.
 ```
-ps -ef | grep pulse
+ps -ef 
 ```
-위 명령어로 pulseaudio가 동작중인지 확인한다.
+다시 들어와서 위 명령어를 실행했을때 `pulseaudio --start --load ...` 하는 부분이 보이는지 체크한다. 보이면 지금까지 이상이 없는것이다.
 ![check puluseaudio](photo_pulseaudio.jpg)
 
 
